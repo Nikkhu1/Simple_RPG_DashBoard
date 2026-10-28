@@ -1,16 +1,45 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Simple RPG Dashboard
 
-Currently, two official plugins are available:
+A beginner-friendly RPG battle dashboard built with React. Manage your character's stats, fight an enemy, use inventory items, and keep track of your quests in one place.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Character Stats:** Track Health, Armor, and Energy.
+- **Battle System:** Attack enemies and deal randomized damage.
+- **Enemy Counterattacks:** Survive enemy attacks using your armor and health.
+- **Inventory System:** Use health potions, armor plates, and energy potions.
+- **Battle Log:** View a history of attacks and damage during combat.
+- **Turn Counter:** Keep track of turns during a battle.
+- **Victory and Game Over:** Battle until the enemy is defeated or your health reaches zero.
+- **Restart Battle:** Reset your stats, inventory, and enemy health to start a new battle.
+- **Quest Journal:** Add, edit, and remove quests.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React
+- JavaScript
+- HTML
+- CSS
+- Vite
+- Git and GitHub
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Learning Goals
+
+This project is part of my React learning journey. It helps me practice:
+
+- React components and props
+- State management with `useState`
+- Event handling
+- Conditional rendering
+- Rendering lists with `map()`
+- Updating arrays and objects in state
+- Passing data and functions between components
+
+## Future Improvements
+
+- Add CSS styling and a responsive layout.
+- Save quests and battle progress using `localStorage`.
+- Add more inventory items and combat mechanics.
+- Introduce equipment, abilities, and different enemy types.
+- Improve the battle log and user interface.
