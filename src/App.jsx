@@ -1,4 +1,5 @@
 import { useState } from "react"
+import "./App.css"
 
 export default function Report() {
 
@@ -32,44 +33,46 @@ export default function Report() {
     const gameEnd = Gameover || victory;
 
   return (
-    <>
+    <div className="game">
     <QuestLog />
 
-    <Stats
-      valueName = {'Health'}
-      Value = {Hvalue}
-      setvalue = {setHvalue}
-      Limit = {100}
-      exception_value = {10}
-      gameEnd = {gameEnd}
-      Inventory = {Inventory}
-      setInventory = {setInventory}
-      itemID = {1}
-    />
+    <div className="card stats">
+      <Stats
+        valueName = {'Health'}
+        Value = {Hvalue}
+        setvalue = {setHvalue}
+        Limit = {100}
+        exception_value = {10}
+        gameEnd = {gameEnd}
+        Inventory = {Inventory}
+        setInventory = {setInventory}
+        itemID = {1}
+      />
 
-    <Stats
-      valueName = {'Armor'}
-      Value = {Avalue}
-      setvalue = {setAvalue}
-      Limit = {100}
-      exception_value = {10}
-      gameEnd = {gameEnd}
-      Inventory = {Inventory}
-      setInventory = {setInventory}
-      itemID = {2}
-    />
+      <Stats
+        valueName = {'Armor'}
+        Value = {Avalue}
+        setvalue = {setAvalue}
+        Limit = {100}
+        exception_value = {10}
+        gameEnd = {gameEnd}
+        Inventory = {Inventory}
+        setInventory = {setInventory}
+        itemID = {2}
+      />
 
-    <Stats
-      valueName = {'Energy'}
-      Value = {Evalue}
-      setvalue = {setEvalue}
-      Limit = {200}
-      exception_value = {10}
-      gameEnd = {gameEnd}
-      Inventory = {Inventory}
-      setInventory = {setInventory}
-      itemID = {3}
-    />
+      <Stats
+        valueName = {'Energy'}
+        Value = {Evalue}
+        setvalue = {setEvalue}
+        Limit = {200}
+        exception_value = {10}
+        gameEnd = {gameEnd}
+        Inventory = {Inventory}
+        setInventory = {setInventory}
+        itemID = {3}
+      />
+    </div>
 
     <Enemy
       Hvalue = {Hvalue}
@@ -98,14 +101,16 @@ export default function Report() {
     />
     }
 
-    <h4>Turn : {turnCount}</h4>
-
-    <button onClick={() => {setattackLog([])}}>ClearLog</button>
-
-    <DisplayLog 
-      attackLog = {attackLog}
-    />
-    </>
+    <div className="card">
+      <div className="turn-bar">
+        <h4>Turn : {turnCount}</h4>
+        <button onClick={() => {setattackLog([])}}>ClearLog</button>
+      </div>
+      <DisplayLog 
+        attackLog = {attackLog}
+      />
+    </div>
+    </div>
   )
 }
 
@@ -155,15 +160,18 @@ function QuestLog() {
   }
 
   return (
-    <>
+    <div className="card">
       <h3>Quests</h3>
-      <input 
-        type="text"
-        value={questDesc}
-        onChange={(e) => setquestDesc(e.target.value)}
-        />
-      <button onClick={AddQuest}>ADD</button>
-      <ul>
+      <div className="quests-add">
+        <input 
+          type="text"
+          value={questDesc}
+          placeholder="New quest..."
+          onChange={(e) => setquestDesc(e.target.value)}
+          />
+        <button onClick={AddQuest}>ADD</button>
+      </div>
+      <ul className="quest-list">
         {questItems.map(item => (
           <li key={item.key}>
             {editingKey === item.key ?
@@ -177,20 +185,20 @@ function QuestLog() {
               </> 
                 :
               <>
-                {item.desc}
+                <span className="quest-desc">{item.desc}</span>
                 <button onClick={() => StartEdit(item.key , item.desc)}>Edit</button>
                 <button onClick={() => RemoveQuest(item.key)}>Remove</button>
               </>
             }
           </li>))}
       </ul>
-    </>
+    </div>
   )
 }
 
 function DisplayLog({attackLog}) {
   return (
-    <ul>
+    <ul className="log">
       {attackLog.map(log => (<li key={log.key}>{log.desc}</li>))}
     </ul>
   )
@@ -209,7 +217,7 @@ function RestartBattle(props){
 
     props.setInventory(updatedInventory)
   }
-  return <button onClick={Restart}>Restart battle</button>
+  return <button className="btn-restart" onClick={Restart}>Restart battle</button>
 }
 
 function Stats({valueName , Value , setvalue, Limit , exception_value , gameEnd , Inventory , setInventory , itemID}) {
@@ -235,10 +243,19 @@ function Stats({valueName , Value , setvalue, Limit , exception_value , gameEnd 
     }
   }
   return (
-    <>
-      <p>{valueName} : {Value}</p>
-      {!gameEnd && <button onClick={InventoryValue}>{Item.item} : {Item.amount}</button>} 
-    </>
+    <div className="stat-row">
+      <div className="stat-head">
+        <span className="stat-name">{valueName}</span>
+        <span className="stat-value">{Value} / {Limit}</span>
+      </div>
+      <div className="bar">
+        <div
+          className={'bar-fill ' + valueName.toLowerCase()}
+          style={{ width: Math.max(0, Math.min(100, (Value / Limit) * 100)) + '%' }}
+        />
+      </div>
+      {!gameEnd && <button className="btn-item" onClick={InventoryValue}>{Item.item} : {Item.amount}</button>} 
+    </div>
   )
 }
 
@@ -268,15 +285,16 @@ function Enemy({Hvalue , setHvalue , enemyhealth , setenemyhealth , Avalue , set
   }
 
   return(
-  <>
-    <p>Enemy Health : {enemyhealth}</p>
+  <div className="card enemy">
+    <h3>Enemy</h3>
+    <p className="enemy-health">Enemy Health : {enemyhealth}</p>
     {Gameover ? 
-        <p>You Lost</p> :
+        <p className="result lost">You Lost</p> :
       victory ?
-        <p>Enemy defeated</p> :
-        <button onClick={Attack}>Attack</button> 
+        <p className="result won">Enemy defeated</p> :
+        <button className="btn-attack" onClick={Attack}>Attack</button> 
     }
     
-  </>
+  </div>
   )
 }
