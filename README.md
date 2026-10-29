@@ -38,7 +38,6 @@ This project is part of my React learning journey. It helps me practice:
 
 ## Future Improvements
 
-- Add CSS styling and a responsive layout.
 - Save quests and battle progress using `localStorage`.
 - Add more inventory items and combat mechanics.
 - Introduce equipment, abilities, and different enemy types.
