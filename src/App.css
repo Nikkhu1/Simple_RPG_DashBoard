@@ -97,7 +97,7 @@ input[type='text']:focus { border-color: var(--armor); }
 .quests-add {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
+  margin: 12px 0;
 }
 .quests-add input { flex: 1; }
 
@@ -120,6 +120,12 @@ input[type='text']:focus { border-color: var(--armor); }
 }
 .quest-list li input { flex: 1; }
 .quest-desc { flex: 1; }
+.quest-completed {
+  flex : 1;
+  text-decoration: line-through;
+  opacity: 0.5;
+  color: #888;
+}
 
 /* ---------- Stats ---------- */
 .stats {

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState , useEffect } from "react"
 import "./App.css"
 
 export default function Report() {
@@ -116,14 +116,28 @@ export default function Report() {
 
 function QuestLog() {
   const [questDesc , setquestDesc] = useState("")
-  const [questItems , setquestItems] = useState([])
+  const [questItems , setquestItems] = useState(() => {
+    const saved = localStorage.getItem("quest");
+    return saved !== null ? JSON.parse(saved) : []
+  })
+  const [filter , setfilter] = useState("all")
+
+  const filteredItems = questItems.filter(item => (
+    filter === "all" ? true :
+    filter === "complete" ? item.completed === true :
+    item.completed === false
+  ))
   
   const [editingKey , seteditingKey] = useState(null)
   const [editDesc , seteditDesc] = useState('')
 
+  useEffect(() => {
+    localStorage.setItem( "quest" , JSON.stringify(questItems))
+  },[questItems])
+
   function AddQuest() {
     if(questDesc.trim()){
-      setquestItems(prevItems => [...prevItems , {key : crypto.randomUUID() , desc : questDesc}])
+      setquestItems(prevItems => [...prevItems , {key : crypto.randomUUID() , desc : questDesc , completed : false}])
       setquestDesc("")
     }
   }
@@ -159,6 +173,16 @@ function QuestLog() {
     seteditDesc('')
   }
 
+function Completequest(Itemkey) {
+  const updateList = questItems.map(item =>
+    Itemkey === item.key
+      ? { ...item, completed: !item.completed }
+      : item
+  )
+
+  setquestItems(updateList)
+  }
+
   return (
     <div className="card">
       <h3>Quests</h3>
@@ -171,8 +195,13 @@ function QuestLog() {
           />
         <button onClick={AddQuest}>ADD</button>
       </div>
+      <div>
+        <button onClick={() => setfilter("all")}>All</button>
+        <button onClick={() => setfilter("pending")}>Pending</button>
+        <button onClick={() => setfilter("complete")}>Completed</button>
+      </div>
       <ul className="quest-list">
-        {questItems.map(item => (
+        {filteredItems.map(item => (
           <li key={item.key}>
             {editingKey === item.key ?
               <>
@@ -180,12 +209,13 @@ function QuestLog() {
                   value={editDesc}
                   onChange={(e) => seteditDesc(e.target.value)}
                   />
-                <button onClick={SaveEdit}>Save</button> 
+                <button onClick={SaveEdit}>Save</button>
                 <button onClick={CancelEdit}>Cancel</button>
               </> 
                 :
               <>
-                <span className="quest-desc">{item.desc}</span>
+                <span className={item.completed ? "quest-completed" : "quest-desc"}>{item.desc}</span>
+                <button onClick={() => Completequest(item.key)}>{item.completed ? "Undo" : "Complete"}</button>
                 <button onClick={() => StartEdit(item.key , item.desc)}>Edit</button>
                 <button onClick={() => RemoveQuest(item.key)}>Remove</button>
               </>
