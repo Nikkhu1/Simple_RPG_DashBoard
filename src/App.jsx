@@ -291,6 +291,32 @@ function Stats({valueName , Value , setvalue, Limit , exception_value , gameEnd 
 
 function Enemy({Hvalue , setHvalue , enemyhealth , setenemyhealth , Avalue , setAvalue , Gameover , victory , attackLog , setattackLog , setturnCount}) {
 
+  const [enemy , setenemy] = useState(null)
+  const [Loading , setLoading] = useState(true)
+  const [error , seterror] = useState(null)
+
+  useEffect( () => {
+    
+    async function Getenemy() {
+      try {
+        const response = await fetch("https://pokeapi.co/api/v2/pokemon/rayquaza")
+        if (!response.ok) {
+          throw new Error("Failed to fetch enemy")
+        }
+        const data = await response.json()
+        setenemy(data)
+
+      } catch(e) {
+        seterror(e.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    Getenemy()
+
+  } , [])
+
   function Attack() {
     if(enemyhealth > 0){
       setturnCount(prevcount => prevcount + 1);
@@ -316,7 +342,14 @@ function Enemy({Hvalue , setHvalue , enemyhealth , setenemyhealth , Avalue , set
 
   return(
   <div className="card enemy">
-    <h3>Enemy</h3>
+    <h3>{Loading ? "Loading" : error === null ? enemy.name : error}</h3>
+    {!Loading && !error && enemy !== null && (
+      <img
+        src={enemy.sprites.front_default}
+        alt={enemy.name}
+      />
+      )
+    }
     <p className="enemy-health">Enemy Health : {enemyhealth}</p>
     {Gameover ? 
         <p className="result lost">You Lost</p> :
