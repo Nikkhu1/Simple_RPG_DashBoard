@@ -6,7 +6,7 @@ export default function Report() {
     const [Hvalue, setHvalue] = useState(100)
     const [Avalue, setAvalue] = useState(100)
     const [Evalue, setEvalue] = useState(200)
-    const [enemyhealth, setenemyhealth] = useState(Math.floor(Math.random() * (150 - 120 + 1)) + 120)
+    const [enemyhealth, setenemyhealth] = useState(0)
     const [attackLog , setattackLog] = useState([])
     const [turnCount , setturnCount] = useState(1)
     const [Inventory , setInventory] = useState([
@@ -26,6 +26,41 @@ export default function Report() {
       amount : 5
     }
   ])
+  
+
+  const [enemy , setenemy] = useState(null)
+  const [Loading , setLoading] = useState(true)
+  const [error , seterror] = useState(null)
+
+  async function Getenemy() {
+      const RandomID = Math.floor(Math.random() * (1025)) + 1
+
+        setLoading(true)
+        seterror(null)
+        
+      try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${RandomID}`)
+        if (!response.ok) {
+          throw new Error("Failed to fetch enemy")
+        }
+        const data = await response.json()
+        const theoryHP = data.stats.find(item => item.stat.name === 'hp').base_stat
+
+        const BaseHP = Math.floor(((theoryHP - 1) / 254) * 30) + 120
+
+        setenemyhealth(BaseHP)
+        setenemy(data)
+      } catch(e) {
+        seterror(e.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+  useEffect( () => {
+    Getenemy()
+  } , [])
+
   
     const Gameover = Hvalue <= 0;
     const victory = enemyhealth <= 0;
@@ -83,21 +118,24 @@ export default function Report() {
       setAvalue = {setAvalue}
       Gameover = {Gameover}
       victory = {victory}
-      attackLog = {attackLog}
       setattackLog = {setattackLog}
       setturnCount = {setturnCount}
+      enemy = {enemy}
+      Loading = {Loading}
+      error = {error}
+      Getenemy = {Getenemy}
     />
 
     {(Gameover || victory) && <RestartBattle
       setHvalue = {setHvalue}
       setAvalue = {setAvalue}
       setEvalue = {setEvalue}
-      setenemyhealth = {setenemyhealth}
       Avalue = {Avalue}
       setturnCount = {setturnCount}
       setattackLog = {setattackLog}
       Inventory = {Inventory}
       setInventory = {setInventory}
+      Getenemy = {Getenemy}
     />
     }
 
@@ -239,9 +277,9 @@ function RestartBattle(props){
     props.setHvalue(100)
     props.setAvalue(100)
     props.setEvalue(200)
-    props.setenemyhealth(Math.floor(Math.random() * (150 - 120 + 1)) + 120)
     props.setturnCount(1)
     props.setattackLog([])
+    props.Getenemy()
 
     const updatedInventory = props.Inventory.map(item => {return {...item , amount : 5}})
 
@@ -289,33 +327,7 @@ function Stats({valueName , Value , setvalue, Limit , exception_value , gameEnd 
   )
 }
 
-function Enemy({Hvalue , setHvalue , enemyhealth , setenemyhealth , Avalue , setAvalue , Gameover , victory , attackLog , setattackLog , setturnCount}) {
-
-  const [enemy , setenemy] = useState(null)
-  const [Loading , setLoading] = useState(true)
-  const [error , seterror] = useState(null)
-
-  useEffect( () => {
-    
-    async function Getenemy() {
-      try {
-        const response = await fetch("https://pokeapi.co/api/v2/pokemon/rayquaza")
-        if (!response.ok) {
-          throw new Error("Failed to fetch enemy")
-        }
-        const data = await response.json()
-        setenemy(data)
-
-      } catch(e) {
-        seterror(e.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    Getenemy()
-
-  } , [])
+function Enemy({Hvalue , setHvalue , enemyhealth , setenemyhealth , Avalue , setAvalue , Gameover , victory , setattackLog , setturnCount , enemy , Loading , error , Getenemy}) {
 
   function Attack() {
     if(enemyhealth > 0){
@@ -335,14 +347,16 @@ function Enemy({Hvalue , setHvalue , enemyhealth , setenemyhealth , Avalue , set
         setAvalue(Avalue - absorbed);
         setHvalue(Math.max(0, Hvalue - overflow));
         let playerLog = {key : crypto.randomUUID() ,desc : 'Player receives ' + overflow + ' damage from enemy ( absorbed ' + absorbed + ' damage by armor)'};
-        setattackLog([...attackLog , enemyLog , playerLog]);
+        setattackLog(prevLog => [...prevLog, enemyLog, playerLog])
       }
     }
   }
 
   return(
   <div className="card enemy">
-    <h3>{Loading ? "Loading" : error === null ? enemy.name : error}</h3>
+  <h3>
+    {Loading ? "Loading..." : error ? error : enemy?.name}
+  </h3>
     {!Loading && !error && enemy !== null && (
       <img
         src={enemy.sprites.front_default}
@@ -351,13 +365,21 @@ function Enemy({Hvalue , setHvalue , enemyhealth , setenemyhealth , Avalue , set
       )
     }
     <p className="enemy-health">Enemy Health : {enemyhealth}</p>
+    {!Loading && !error && enemy !== null && (
+      <div>
+        <p>Height : {enemy.height / 10} m</p>
+        <p>Weight : {enemy.weight / 10} Kg</p>
+        <p>Type : {enemy.types.map(enemy => enemy.type.name).join(", ")}</p>
+      </div>
+    )}
     {Gameover ? 
         <p className="result lost">You Lost</p> :
       victory ?
         <p className="result won">Enemy defeated</p> :
-        <button className="btn-attack" onClick={Attack}>Attack</button> 
+        (!Loading && !error && (
+          <button className="btn-attack" onClick={Attack}>Attack</button>
+        ))
     }
-    
   </div>
   )
 }
