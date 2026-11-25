@@ -31,6 +31,7 @@ export default function Report() {
   const [enemy , setenemy] = useState(null)
   const [Loading , setLoading] = useState(true)
   const [error , seterror] = useState(null)
+  const [enemyDamage , setenemyDamage] = useState(null)
 
   async function Getenemy() {
       const RandomID = Math.floor(Math.random() * (1025)) + 1
@@ -45,9 +46,12 @@ export default function Report() {
         }
         const data = await response.json()
         const theoryHP = data.stats.find(item => item.stat.name === 'hp').base_stat
-
         const BaseHP = Math.floor(((theoryHP - 1) / 254) * 30) + 120
 
+        const theoryDamage = data.stats.find(item => item.stat.name === 'attack').base_stat
+        const BaseDamage = Math.floor(((theoryDamage - 5) / 185) * 19) + 8
+
+        setenemyDamage(BaseDamage)
         setenemyhealth(BaseHP)
         setenemy(data)
       } catch(e) {
@@ -123,7 +127,7 @@ export default function Report() {
       enemy = {enemy}
       Loading = {Loading}
       error = {error}
-      Getenemy = {Getenemy}
+      enemyDamage = {enemyDamage}
     />
 
     {(Gameover || victory) && <RestartBattle
@@ -327,7 +331,7 @@ function Stats({valueName , Value , setvalue, Limit , exception_value , gameEnd 
   )
 }
 
-function Enemy({Hvalue , setHvalue , enemyhealth , setenemyhealth , Avalue , setAvalue , Gameover , victory , setattackLog , setturnCount , enemy , Loading , error , Getenemy}) {
+function Enemy({Hvalue , setHvalue , enemyhealth , setenemyhealth , Avalue , setAvalue , Gameover , victory , setattackLog , setturnCount , enemy , Loading , error , enemyDamage}) {
 
   function Attack() {
     if(enemyhealth > 0){
@@ -339,7 +343,7 @@ function Enemy({Hvalue , setHvalue , enemyhealth , setenemyhealth , Avalue , set
       setenemyhealth(temphealth < 0 ? 0 : temphealth);
       {temphealth <= 0 && setattackLog(prevLog => [...prevLog , enemyLog])}
       if(temphealth > 0){
-        const damageTook = Math.floor(Math.random() * 16) + 12;
+        const damageTook = enemyDamage
 
         const absorbed = Math.min(Avalue, damageTook);
         const overflow = damageTook - absorbed;
